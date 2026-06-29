@@ -19,7 +19,7 @@ export default function App() {
   const [showReport, setShowReport] = useState(false);
   const [stats, setStats] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
-  const [points, setPoints] = useState(120);
+  const [points, setPoints] = useState(0);
 
   const refreshTickets = useCallback(async () => {
     setLoading(true);
@@ -34,28 +34,56 @@ export default function App() {
   const refreshStats = useCallback(async () => {
     try {
       setStats(await getStats());
-    } catch {}
+    } catch { }
   }, []);
 
   const refreshLeaderboard = useCallback(async () => {
+  const data = await getLeaderboard();
+
+  setLeaderboard(data);
+
+  const me = data.find((u) => u.name === CURRENT_USER);
+
+  if (me) {
+    setPoints(me.points);
+  }
+}, []);
+  const refreshPoints = useCallback(async () => {
     try {
-      setLeaderboard(await getLeaderboard());
-    } catch {}
+      const res = await fetch("/api/users/me");
+      const data = await res.json();
+
+      setPoints(data.points); // or data.credits
+    } catch (err) {
+      console.error(err);
+    }
   }, []);
 
-  useEffect(() => { refreshTickets(); }, [refreshTickets]);
+  useEffect(() => {
+    refreshTickets();
+    refreshPoints();
+  }, [refreshTickets, refreshPoints]);
+  useEffect(() => {
+    refreshPoints();
+  }, [refreshPoints]);
   useEffect(() => { refreshStats(); }, [refreshStats, tickets]);
   useEffect(() => { if (tab === "leaderboard") refreshLeaderboard(); }, [tab, refreshLeaderboard]);
 
   const handleVerify = async (id) => {
-    try {
-      const updated = await verifyTicket(id, CURRENT_USER);
-      setTickets((prev) => prev.map((t) => (t._id === id ? updated : t)));
-      setPoints((p) => p + 5);
-    } catch (e) {
-      // already verified or network issue — no-op for demo
-    }
-  };
+  try {
+    const updated = await verifyTicket(id, CURRENT_USER);
+
+    setTickets((prev) =>
+      prev.map((t) => (t._id === id ? updated : t))
+    );
+
+    await refreshPoints();
+    await refreshLeaderboard();
+
+  } catch (e) {
+    // already verified or network issue — no-op for demo
+  }
+};
 
   const handleAdvance = async (id) => {
     const updated = await advanceTicket(id);
