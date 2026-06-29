@@ -1,7 +1,27 @@
 import React, { useRef, useState } from "react";
 import { X, Camera, MapPin, Sparkles, Loader2 } from "lucide-react";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import L from "leaflet";
 import { CATEGORY_META } from "../meta";
 import { createTicket } from "../api";
+
+// Fix for default Leaflet marker icons in React
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+});
+
+function LocationMarker({ position, setPosition }) {
+  useMapEvents({
+    click(e) {
+      setPosition(e.latlng);
+    },
+  });
+
+  return position === null ? null : <Marker position={position} />;
+}
 
 export default function ReportModal({ onClose, onCreated, currentUser }) {
   const fileRef = useRef();
@@ -102,11 +122,30 @@ export default function ReportModal({ onClose, onCreated, currentUser }) {
           className="w-full bg-panel border border-line rounded-lg p-3 text-sm text-white placeholder:text-muted mb-3 focus:outline-none focus:border-accent"
         />
 
+        <div className="w-full bg-panel border border-line rounded-lg mb-3 overflow-hidden relative" style={{ height: 180 }}>
+          <MapContainer
+            center={coords || [22.7508, 88.3426]}
+            zoom={14}
+            style={{ height: "100%", width: "100%", zIndex: 10 }}
+          >
+            <TileLayer
+              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+              attribution="&copy; OpenStreetMap"
+            />
+            <LocationMarker position={coords} setPosition={setCoords} />
+          </MapContainer>
+          {!coords && (
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-[20] pointer-events-none">
+              <span className="bg-black/60 px-3 py-1 rounded-full text-xs text-white">Click map to drop pin</span>
+            </div>
+          )}
+        </div>
+
         <button
           onClick={useMyLocation}
           className="w-full flex items-center justify-center gap-2 text-sm text-blue border border-line rounded-lg py-2.5 mb-3 hover:border-blue transition-colors"
         >
-          <MapPin size={14} /> {coords ? `Pinned (${coords.lat.toFixed(3)}, ${coords.lng.toFixed(3)})` : "Use my current location"}
+          <MapPin size={14} /> {coords ? `Pinned (${coords?.lat?.toFixed(3) || coords[0]?.toFixed(3)}, ${coords?.lng?.toFixed(3) || coords[1]?.toFixed(3)})` : "Use my current location"}
         </button>
 
         {aiPreview && (

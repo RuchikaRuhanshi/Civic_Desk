@@ -1,7 +1,8 @@
 import React from "react";
-import { Camera, Award, MapPin, BarChart3, Trophy, ListFilter } from "lucide-react";
+import { Home as HomeIcon, Camera, Award, MapPin, BarChart3, Trophy, ListFilter } from "lucide-react";
 
 const TABS = [
+  { key: "home", label: "Home", icon: HomeIcon },
   { key: "feed", label: "Feed", icon: ListFilter },
   { key: "map", label: "Map", icon: MapPin },
   { key: "dashboard", label: "Dashboard", icon: BarChart3 },

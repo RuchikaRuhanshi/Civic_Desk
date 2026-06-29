@@ -8,4 +8,4 @@ export function getAnthropicClient() {
   return client;
 }
 
-export const AI_MODEL = "claude-sonnet-4-6";
+export const AI_MODEL = "claude-3-5-sonnet-20240620";

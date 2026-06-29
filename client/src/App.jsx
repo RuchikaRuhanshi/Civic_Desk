@@ -6,12 +6,13 @@ import Dashboard from "./components/Dashboard";
 import Leaderboard from "./components/Leaderboard";
 import ReportModal from "./components/ReportModal";
 import AIAssistant from "./components/AIAssistant";
+import Home from "./components/Home";
 import { getTickets, verifyTicket, advanceTicket, getStats, getLeaderboard } from "./api";
 
 const CURRENT_USER = "You";
 
 export default function App() {
-  const [tab, setTab] = useState("feed");
+  const [tab, setTab] = useState("home");
   const [tickets, setTickets] = useState([]);
   const [filter, setFilter] = useState("All");
   const [loading, setLoading] = useState(true);
@@ -73,6 +74,7 @@ export default function App() {
       <Navbar tab={tab} setTab={setTab} points={points} onReport={() => setShowReport(true)} stats={stats} />
 
       <div className="max-w-6xl mx-auto px-6 py-6">
+        {tab === "home" && <Home setTab={setTab} onReport={() => setShowReport(true)} />}
         {tab === "feed" && (
           <Feed
             tickets={tickets}
