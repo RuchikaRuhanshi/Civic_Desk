@@ -31,3 +31,14 @@ body {
   background: #171A21 !important;
   border-radius: 12px;
 }
+
+.glass {
+  background: rgba(16, 18, 27, 0.7);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255,255,255,0.05);
+  box-shadow: 0 0 40px rgba(0,0,0,0.25);
+}
+
+.text-muted {
+  color: #8A8F9C;
+}
